@@ -1,0 +1,5 @@
+- GetUpdates:
+  - GetUpdates should only return items updated since the last call
+  - GetUpdates can sometimes redeliver the same item version. It should never skip update
+  - Grab current highest version number.
+  - Scan items, include the ones with version greater than
