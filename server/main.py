@@ -53,6 +53,20 @@ class MsgBoardStateApi(endpoints.remote.Service):
 
     return protocol.ConnectResponse(client_id=client_id)
 
+  @staticmethod
+  def ItemEntryToProtocol(item):
+    return protocol.ItemState(
+        id=item.key.id(),
+        x=item.x,
+        y=item.y,
+        z=item.z,
+        version=item.version)
+
+  @classmethod
+  def ItemEntriesToProtocol(cls, items):
+    result = [cls.ItemEntryToProtocol(item) for item in items]
+    return result
+
   @endpoints.method(
     protocol.GetStateRequest,
     protocol.GetStateResponse,
@@ -60,14 +74,17 @@ class MsgBoardStateApi(endpoints.remote.Service):
     http_method='POST',
     name='getUpdates')
   def GetUpdates(self, request):
-    items = bsh.ProdBoardStateHandler(request.board_id).GetItemUpdates()
-    items = [
-        protocol.ItemState(
-          id=item.key.id(),
-          x=item.x, y=item.y, z=item.z,
-          version=item.version)
-        for item in items]
-    return protocol.GetStateResponse(version_token="42", items=items)
+    result = bsh.ProdBoardStateHandler(request.board_id).GetItemUpdates(
+        request.progress_token)
+    # items = [
+    #     protocol.ItemState(
+    #       id=item.key.id(),
+    #       x=item.x, y=item.y, z=item.z,
+    #       version=item.version)
+    #     for item in items]
+    return protocol.GetStateResponse(
+        progress_token=result.progress_token,
+        items=self.ItemEntriesToProtocol(result.items))
 
   @endpoints.method(
     protocol.MoveRequest,

@@ -10,17 +10,23 @@ class ItemState(ndb.Model):
   version = ndb.IntegerProperty('v')
   update_time = ndb.FloatProperty('mt')
   lock_token = ndb.StringProperty('lk')
+  persist_time = ndb.FloatProperty('pt')
+
+  @classmethod
+  def query_items(cls, board_id):
+    board_key = ndb.Key(BoardState, board_id)
+    return cls.query(ancestor=board_key)
 
 class ClientState(ndb.Model):
   lock_token = ndb.StringProperty('lkt')
   locked_item_id = ndb.StringProperty('lki')
 
 # Cache
-# class ItemVersion(ndb.Model):
-#   item_id = ndb.StringProperty('iid')
-#   version = ndb.IntegerProperty('v')
-#   update_time = ndb.FloatProperty('mt')
+class ItemVersion(ndb.Model):
+  item_id = ndb.StringProperty('iid')
+  update_time = ndb.FloatProperty('mt')
 
-# class UpdatedItems(ndb.Model):
-#   items = ndb.StructuredProperty(ItemVersion, 'iv', repeated=True)
-#   last_persisted_time_marker = ndb.FloatProperty('pt')
+class RecentUpdates(ndb.Model):
+  items = ndb.StructuredProperty(ItemVersion, 'iv', repeated=True)
+  highest_uncached_time = ndb.FloatProperty('hut')
+  # highest_persisted_time = ndb.FloatProperty('hpt')

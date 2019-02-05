@@ -32,11 +32,13 @@ class MsgBoardClient:
   def DeleteBoard(self):
     return self.SendRequest('msgboard/v1/admin/delete-board')
 
-  def GetUpdates(self, board_id):
-    return self.SendRequest('msgboard/v1/state/updates',
-    {
+  def GetUpdates(self, board_id, progress_token=None):
+    request = {
       'board_id': board_id
-    })
+    }
+    if progress_token:
+      request['progress_token'] = progress_token
+    return self.SendRequest('msgboard/v1/state/updates', request)
 
   def ConnectClient(self, board_id, client_id):
     request = {
@@ -78,8 +80,11 @@ def TestAPI():
   response = client.MoveItem('board1', 'item1', 8,9,10,
       lock_token=lock_token, is_release=True)
   print(response)
-  # updates = client.GetUpdates('board1')
-  # print(updates)
+  updates = client.GetUpdates('board1')
+  print(updates)
+  progress_token = updates['progress_token']
+  updates = client.GetUpdates('board1', progress_token)
+  print(updates)
   # client.DeleteBoard()
 
 def main():

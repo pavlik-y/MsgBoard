@@ -1,2 +1,3 @@
 server/lib/*
 *.pyc
+.vscode/*
